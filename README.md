@@ -74,6 +74,10 @@ Os três modelos ficaram a menos de 0,005 de ROC-AUC entre si, menos que a varia
 |---|---|---|
 | ![](reports/figures/curva_roc.png) | ![](reports/figures/matriz_de_confusao.png) | ![](reports/figures/coeficientes.png) |
 
+## O modelo em produção
+
+Este modelo é servido pela [**churn-prediction-api**](https://github.com/jgcortezi/churn-prediction-api): uma API FastAPI com validação de entrada, explicação de cada previsão, Docker e cerca de 15 ms por cliente.
+
 ## Notebooks
 
 - [`01_analise_exploratoria.ipynb`](notebooks/01_analise_exploratoria.ipynb): qualidade dos dados, taxa de churn e os fatores ligados ao cancelamento.
@@ -133,7 +137,6 @@ customer-churn-prediction/
 ## Próximos passos
 
 - Calibrar as probabilidades e escolher o limiar pelo custo real de uma ação de retenção.
-- Servir o modelo numa API para o CRM consultar em tempo real.
 - Testar variáveis novas, como o número de serviços extras de cada cliente.
 
 ## Dados
