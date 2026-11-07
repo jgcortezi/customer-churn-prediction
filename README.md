@@ -7,7 +7,7 @@
 ![scikit-learn](https://img.shields.io/badge/scikit--learn-1.9-F7931E?logo=scikitlearn&logoColor=white)
 ![Licença MIT](https://img.shields.io/badge/licen%C3%A7a-MIT-green)
 
-[**▶ Página do projeto com simulador de risco**](https://jgcortezi.github.io/customer-churn-prediction/)
+[**▶ Página do projeto com simulador de risco**](https://jgcortezi.github.io/customer-churn-prediction/) · [🤗 Modelo no Hugging Face](https://huggingface.co/jgcortezi/churn-radar-logreg) · [Notebook no Kaggle](https://www.kaggle.com/code/jgcortezi/churn-radar-telco-customer-churn)
 
 ![Prévia da página](docs/preview.png)
 
@@ -103,6 +103,10 @@ pytest -q                                     # 17 testes
 ```
 
 O treino baixa o CSV público automaticamente na primeira vez. Os números do README, da página e do `reports/metrics.json` saem todos do mesmo treino.
+
+## Publicação automática
+
+O workflow [`publicar.yml`](.github/workflows/publicar.yml) publica o modelo no **Hugging Face Hub** (formato skops, sem pickle, com model card) e envia e executa o notebook no **Kaggle** sempre que as pastas `huggingface/` ou `kaggle/` mudam. As chaves ficam nos secrets do GitHub, nunca no código.
 
 ## Estrutura
 
