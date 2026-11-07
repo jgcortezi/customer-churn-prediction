@@ -62,5 +62,5 @@ jobs:
       - name: Envia e executa o notebook no Kaggle
         if: env.KAGGLE_API_TOKEN != ''
         run: |
-          pip install kaggle==2.2.5
+          pip install kaggle==2.2.5 six==1.17.0  # o pacote kaggle 2.2.5 usa six sem declarar
           kaggle kernels push -p kaggle
