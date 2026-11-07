@@ -1,0 +1,66 @@
+name: Publicar modelo e notebook
+
+# Publica o modelo no Hugging Face Hub e o notebook no Kaggle.
+# Roda quando a pasta huggingface/ ou kaggle/ muda, ou manualmente (Run workflow).
+# Precisa dos secrets HF_TOKEN e KAGGLE_API_TOKEN; sem eles, a etapa é pulada.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "huggingface/**"
+      - "kaggle/**"
+      - ".github/workflows/publicar.yml"
+
+jobs:
+  hugging-face:
+    runs-on: ubuntu-latest
+    env:
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      REPO_ID: jgcortezi/churn-radar-logreg
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Sem token, nada a fazer
+        if: env.HF_TOKEN == ''
+        run: echo "::notice::Secret HF_TOKEN não configurado; publicação no Hugging Face pulada."
+      - name: Envia modelo e model card
+        if: env.HF_TOKEN != ''
+        run: |
+          pip install huggingface_hub==1.33.0
+          python - <<'PY'
+          import os
+          from huggingface_hub import HfApi
+
+          api = HfApi(token=os.environ["HF_TOKEN"])
+          repo = os.environ["REPO_ID"]
+          api.create_repo(repo, repo_type="model", exist_ok=True)
+          api.upload_folder(
+              folder_path="huggingface",
+              repo_id=repo,
+              ignore_patterns=["card_template.md"],
+              commit_message=f"Modelo do commit {os.environ['GITHUB_SHA'][:7]} do GitHub",
+          )
+          print(f"Publicado em https://huggingface.co/{repo}")
+          PY
+
+  kaggle:
+    runs-on: ubuntu-latest
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Sem token, nada a fazer
+        if: env.KAGGLE_API_TOKEN == ''
+        run: echo "::notice::Secret KAGGLE_API_TOKEN não configurado; publicação no Kaggle pulada."
+      - name: Envia e executa o notebook no Kaggle
+        if: env.KAGGLE_API_TOKEN != ''
+        run: |
+          pip install kaggle==2.2.5
+          kaggle kernels push -p kaggle

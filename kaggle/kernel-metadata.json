@@ -1,0 +1,13 @@
+{
+  "id": "jgcortezi/churn-radar-telco-customer-churn",
+  "title": "Churn Radar: Telco Customer Churn",
+  "code_file": "churn-radar.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": false,
+  "enable_gpu": false,
+  "enable_internet": true,
+  "dataset_sources": ["blastchar/telco-customer-churn"],
+  "competition_sources": [],
+  "kernel_sources": []
+}
