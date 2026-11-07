@@ -1,0 +1,158 @@
+{
+  "gerado_em": "2026-11-07",
+  "dados": {
+    "clientes": 7043,
+    "treino": 5634,
+    "teste": 1409
+  },
+  "modelo_escolhido": "Regressão Logística",
+  "validacao_cruzada": [
+    {
+      "modelo": "Regressão Logística",
+      "roc_auc": 0.845993938597194,
+      "roc_auc_std": 0.012393895200642933,
+      "pr_auc": 0.6600746832510516,
+      "pr_auc_std": 0.019564980289519432,
+      "recall": 0.8013377926421403,
+      "recall_std": 0.037932968237479145,
+      "precision": 0.5169119624638944,
+      "precision_std": 0.018691947107694024,
+      "f1": 0.6282495532217147,
+      "f1_std": 0.023137004537882363
+    },
+    {
+      "modelo": "Random Forest",
+      "roc_auc": 0.8452826914241414,
+      "roc_auc_std": 0.008816112075045908,
+      "pr_auc": 0.6534413480542168,
+      "pr_auc_std": 0.02307156883853703,
+      "recall": 0.7618729096989967,
+      "recall_std": 0.02703863937312075,
+      "precision": 0.5402492649567273,
+      "precision_std": 0.011870158929017828,
+      "f1": 0.6319747345420379,
+      "f1_std": 0.013402062039927621
+    },
+    {
+      "modelo": "Gradient Boosting",
+      "roc_auc": 0.8410342171830619,
+      "roc_auc_std": 0.008977530839185626,
+      "pr_auc": 0.6568980061831513,
+      "pr_auc_std": 0.01766070642941623,
+      "recall": 0.768561872909699,
+      "recall_std": 0.018848164285759722,
+      "precision": 0.5359322409816192,
+      "precision_std": 0.011034735966815541,
+      "f1": 0.6314657198913778,
+      "f1_std": 0.01320974364355589
+    },
+    {
+      "modelo": "Baseline (classe mais comum)",
+      "roc_auc": 0.5,
+      "roc_auc_std": 0.0,
+      "pr_auc": 0.2653532460941748,
+      "pr_auc_std": 9.424729039040346e-05,
+      "recall": 0.0,
+      "recall_std": 0.0,
+      "precision": 0.0,
+      "precision_std": 0.0,
+      "f1": 0.0,
+      "f1_std": 0.0
+    }
+  ],
+  "teste": {
+    "roc_auc": 0.841501976284585,
+    "pr_auc": 0.6325016828753636,
+    "recall": 0.7834224598930482,
+    "precision": 0.504302925989673,
+    "f1": 0.6136125654450262,
+    "threshold": 0.5,
+    "confusion_matrix": {
+      "tn": 747,
+      "fp": 288,
+      "fn": 81,
+      "tp": 293
+    },
+    "churn_capturado_top20pct": 0.49732620320855614
+  },
+  "teste_todos_os_modelos": {
+    "Regressão Logística": {
+      "roc_auc": 0.841501976284585,
+      "pr_auc": 0.6325016828753636,
+      "recall": 0.7834224598930482,
+      "precision": 0.504302925989673,
+      "f1": 0.6136125654450262,
+      "threshold": 0.5,
+      "confusion_matrix": {
+        "tn": 747,
+        "fp": 288,
+        "fn": 81,
+        "tp": 293
+      },
+      "churn_capturado_top20pct": 0.49732620320855614
+    },
+    "Random Forest": {
+      "roc_auc": 0.8413263065436978,
+      "pr_auc": 0.6462518698079144,
+      "recall": 0.7727272727272727,
+      "precision": 0.5322283609576427,
+      "f1": 0.6303162486368593,
+      "threshold": 0.5,
+      "confusion_matrix": {
+        "tn": 781,
+        "fp": 254,
+        "fn": 85,
+        "tp": 289
+      },
+      "churn_capturado_top20pct": 0.49732620320855614
+    },
+    "Gradient Boosting": {
+      "roc_auc": 0.8385504662998269,
+      "pr_auc": 0.6571392913795502,
+      "recall": 0.7727272727272727,
+      "precision": 0.5273722627737226,
+      "f1": 0.6268980477223427,
+      "threshold": 0.5,
+      "confusion_matrix": {
+        "tn": 776,
+        "fp": 259,
+        "fn": 85,
+        "tp": 289
+      },
+      "churn_capturado_top20pct": 0.5053475935828877
+    }
+  },
+  "simulador": {
+    "roc_auc_teste": 0.8329781187837453,
+    "variaveis": [
+      "tenure",
+      "MonthlyCharges",
+      "Contract",
+      "InternetService",
+      "PaymentMethod",
+      "TechSupport"
+    ]
+  },
+  "taxas_de_churn": {
+    "base": 0.2653698707936959,
+    "clientes": 7043,
+    "contrato": {
+      "Month-to-month": 0.4270967741935484,
+      "One year": 0.11269517990495587,
+      "Two year": 0.02831858407079646
+    },
+    "pagamento": {
+      "Bank transfer (automatic)": 0.16709844559585493,
+      "Credit card (automatic)": 0.15243101182654403,
+      "Electronic check": 0.4528541226215645,
+      "Mailed check": 0.19106699751861042
+    },
+    "tempo_de_casa": {
+      "0–6m": 0.5293720459149224,
+      "7–12m": 0.3588652482269504,
+      "13–24m": 0.287109375,
+      "25–48m": 0.2038895859473024,
+      "49–72m": 0.09513175524787852
+    }
+  }
+}
