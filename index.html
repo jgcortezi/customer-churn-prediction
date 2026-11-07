@@ -1,0 +1,499 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Churn Radar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+  :root{
+    --ground:#f2f1ec; --surface:#ffffff; --surface-2:#f8f7f3;
+    --ink:#15130f; --ink-2:#57534c; --muted:#8a877e;
+    --line:#e5e3db; --line-strong:#d5d3c9;
+    --blue:#2a78d6; --blue-soft:#dbe8fa;
+    --orange:#e6602f; --orange-soft:#fbe2d6;
+    --teal:#159a6d; --teal-soft:#d3f0e4;
+    --shadow:0 1px 2px rgba(20,18,14,.04),0 8px 24px -12px rgba(20,18,14,.14);
+    --radius:16px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#111310; --surface:#1b1d18; --surface-2:#212420;
+      --ink:#f4f3ee; --ink-2:#b1afa4; --muted:#87857c;
+      --line:#2c2e28; --line-strong:#3a3c35;
+      --blue:#4f97ec; --blue-soft:#1b2c40;
+      --orange:#f07a4d; --orange-soft:#3a2418;
+      --teal:#3bbd8a; --teal-soft:#122c22;
+      --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px -14px rgba(0,0,0,.6);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#111310; --surface:#1b1d18; --surface-2:#212420;
+    --ink:#f4f3ee; --ink-2:#b1afa4; --muted:#87857c;
+    --line:#2c2e28; --line-strong:#3a3c35;
+    --blue:#4f97ec; --blue-soft:#1b2c40;
+    --orange:#f07a4d; --orange-soft:#3a2418;
+    --teal:#3bbd8a; --teal-soft:#122c22;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px -14px rgba(0,0,0,.6);
+  }
+
+  *{box-sizing:border-box}
+  body{
+    background:var(--ground); color:var(--ink);
+    font-family:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+    line-height:1.5; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding-inline:20px}
+  h1,h2,h3{font-family:"Archivo",system-ui,sans-serif;margin:0;line-height:1.08;text-wrap:balance}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+
+  /* Header */
+  header{
+    position:sticky;top:env(safe-area-inset-top,0px);z-index:20;
+    background:color-mix(in srgb,var(--ground) 86%,transparent);
+    backdrop-filter:blur(10px);border-bottom:1px solid var(--line);
+  }
+  .bar{display:flex;align-items:center;justify-content:space-between;height:58px}
+  .brand{display:flex;align-items:center;gap:10px;font-family:"Archivo";font-weight:800;letter-spacing:-.02em;font-size:18px}
+  .dot{width:12px;height:12px;border-radius:50%;background:var(--orange);box-shadow:0 0 0 4px var(--orange-soft)}
+  .toggle{
+    appearance:none;border:1px solid var(--line-strong);background:var(--surface);
+    color:var(--ink-2);border-radius:999px;padding:7px 14px;font-size:13px;font-weight:600;
+    cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:7px
+  }
+  .toggle:hover{border-color:var(--muted)}
+
+  /* Hero */
+  .hero{padding-block:52px 30px}
+  .eyebrow{font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--orange);margin-bottom:18px}
+  .hero h1{font-size:clamp(34px,6vw,60px);font-weight:800;letter-spacing:-.03em}
+  .hero h1 .hl{color:var(--orange)}
+  .lede{margin-top:20px;max-width:60ch;font-size:clamp(16px,2.2vw,19px);color:var(--ink-2)}
+  .meta{margin-top:22px;display:flex;flex-wrap:wrap;gap:8px}
+  .chip{font-size:12.5px;font-weight:600;color:var(--ink-2);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 12px}
+
+  /* KPI row */
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:34px}
+  .kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px 18px;box-shadow:var(--shadow)}
+  .kpi .n{font-family:"Archivo";font-weight:800;font-size:clamp(28px,4vw,38px);letter-spacing:-.02em;line-height:1}
+  .kpi .n.orange{color:var(--orange)} .kpi .n.blue{color:var(--blue)} .kpi .n.teal{color:var(--teal)}
+  .kpi .k{margin-top:10px;font-size:13px;color:var(--ink-2);font-weight:500}
+
+  section.block{padding-block:40px;border-top:1px solid var(--line);margin-top:44px}
+  .sec-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:6px}
+  .sec-head h2{font-size:clamp(22px,3.4vw,30px);font-weight:700;letter-spacing:-.02em}
+  .sec-num{font-family:"IBM Plex Mono";font-size:13px;color:var(--muted);font-weight:600}
+  .sec-sub{color:var(--ink-2);max-width:64ch;margin-top:10px}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:26px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow)}
+  .card h3{font-size:16px;font-weight:700;letter-spacing:-.01em}
+  .card .note{font-size:13px;color:var(--ink-2);margin-top:4px}
+
+  /* bar chart */
+  .rows{margin-top:18px;display:flex;flex-direction:column;gap:14px}
+  .row .rl{display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:6px}
+  .row .rl .name{font-weight:600} .row .rl .val{font-family:"IBM Plex Mono";font-weight:600}
+  .track{height:12px;background:var(--surface-2);border-radius:999px;overflow:hidden}
+  .fill{height:100%;border-radius:999px;background:var(--blue);transform-origin:left;animation:grow .9s cubic-bezier(.2,.8,.2,1) both}
+  .fill.hot{background:var(--orange)} .fill.cool{background:var(--teal)}
+  @keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+  @media (prefers-reduced-motion:reduce){.fill{animation:none}}
+
+  /* tenure area svg */
+  .chartbox{margin-top:16px}
+  svg{display:block;width:100%;height:auto;overflow:visible}
+  .axis{font-family:"IBM Plex Mono";font-size:10.5px;fill:var(--muted)}
+
+  /* model table */
+  .mtable{margin-top:24px;width:100%;border-collapse:collapse;font-size:14px}
+  .mtable th{text-align:left;font-weight:600;color:var(--muted);font-size:12px;letter-spacing:.04em;text-transform:uppercase;padding:0 12px 12px}
+  .mtable td{padding:14px 12px;border-top:1px solid var(--line)}
+  .mtable tr td:first-child{font-weight:600}
+  .mtable .best td{background:var(--surface-2)}
+  .badge{font-size:11px;font-weight:700;color:var(--teal);background:var(--teal-soft);padding:3px 8px;border-radius:6px;margin-left:8px;letter-spacing:.02em}
+  .mbar{display:inline-block;height:8px;border-radius:4px;background:var(--blue);vertical-align:middle;margin-right:8px}
+
+  /* simulator */
+  .sim{margin-top:26px;display:grid;grid-template-columns:1.1fr .9fr;gap:20px;align-items:stretch}
+  .controls{display:flex;flex-direction:column;gap:18px}
+  .ctrl label{font-size:13px;font-weight:600;display:flex;justify-content:space-between;margin-bottom:8px}
+  .ctrl label span{font-family:"IBM Plex Mono";color:var(--blue);font-weight:600}
+  select,input[type=range]{width:100%;font-family:inherit}
+  select{appearance:none;background:var(--surface-2);border:1px solid var(--line-strong);color:var(--ink);border-radius:10px;padding:11px 13px;font-size:14px;font-weight:500;cursor:pointer}
+  input[type=range]{-webkit-appearance:none;height:6px;border-radius:999px;background:var(--line-strong);outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--blue);cursor:pointer;border:3px solid var(--surface);box-shadow:0 1px 4px rgba(0,0,0,.25)}
+  input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--blue);cursor:pointer;border:3px solid var(--surface)}
+  .gauge{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius);padding:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+  .gauge .pct{font-family:"Archivo";font-weight:800;font-size:52px;letter-spacing:-.02em;line-height:1;margin-top:8px}
+  .gauge .lab{font-size:13px;font-weight:600;color:var(--ink-2);margin-top:12px}
+  .risk-pill{margin-top:14px;font-size:13px;font-weight:700;padding:6px 14px;border-radius:999px}
+
+  footer{padding-block:40px 60px;border-top:1px solid var(--line);margin-top:44px;color:var(--ink-2);font-size:13.5px}
+  footer .name{font-family:"Archivo";font-weight:700;color:var(--ink);font-size:15px}
+  footer a{color:var(--blue);text-decoration:none}
+  .disclaimer{font-size:12px;color:var(--muted);margin-top:10px;max-width:70ch}
+
+  @media(max-width:760px){
+    .kpis{grid-template-columns:repeat(2,1fr)}
+    .grid2{grid-template-columns:1fr}
+    .sim{grid-template-columns:1fr}
+  }
+</style>
+
+<header>
+  <div class="wrap bar">
+    <div class="brand"><span class="dot"></span>Churn&nbsp;Radar</div>
+    <button class="toggle" id="themeBtn" aria-label="Alternar tema">
+      <span id="themeIcon">◐</span><span id="themeLbl">Tema</span>
+    </button>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <div class="eyebrow">Machine Learning · Retenção de clientes</div>
+    <h1>1 em cada 4 clientes vai <span class="hl">embora</span>.<br>O modelo diz quais — antes.</h1>
+    <p class="lede">Um pipeline de ponta a ponta que analisa <span data-d="clientes">7.043</span> clientes de telecom, encontra os padrões de cancelamento e treina um modelo capaz de sinalizar quem está prestes a sair — para o time de retenção agir com antecedência, e não depois da perda.</p>
+    <div class="meta">
+      <span class="chip">Python</span><span class="chip">scikit-learn</span>
+      <span class="chip">pandas</span><span class="chip">Validação cruzada</span>
+      <span class="chip">Dataset: Telco Customer Churn</span>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi"><div class="n" data-d="clientes">7.043</div><div class="k">clientes analisados</div></div>
+      <div class="kpi"><div class="n orange" data-d="taxa_base">26,5%</div><div class="k">taxa de churn na base</div></div>
+      <div class="kpi"><div class="n blue" data-d="auc">0,84</div><div class="k">ROC-AUC no teste</div></div>
+      <div class="kpi"><div class="n teal" data-d="recall">78%</div><div class="k">dos que cancelam são encontrados</div></div>
+    </div>
+  </section>
+
+  <!-- INSIGHTS -->
+  <section class="block">
+    <div class="sec-head"><span class="sec-num">01</span><h2>O que faz o cliente cancelar</h2></div>
+    <p class="sec-sub">Antes de qualquer modelo, a análise exploratória já conta a história. Três fatores explicam a maior parte do churn.</p>
+
+    <div class="grid2">
+      <div class="card">
+        <h3>Tipo de contrato</h3>
+        <p class="note">O maior driver isolado. Contrato mensal cancela <b data-d="razao_contrato">15×</b> mais que o de 2 anos.</p>
+        <div class="rows" id="contractRows"></div>
+      </div>
+      <div class="card">
+        <h3>Forma de pagamento</h3>
+        <p class="note">Quem paga com cheque eletrônico cancela <b data-d="razao_pagamento">3×</b> mais que quem paga com cartão automático.</p>
+        <div class="rows" id="paymentRows"></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <h3>Quem cancela, cancela cedo</h3>
+      <p class="note">A taxa de churn despenca conforme o cliente cria vínculo. Nos primeiros 6 meses, <b data-d="churn_6m">53%</b> cancelam.</p>
+      <div class="chartbox" id="tenureChart"></div>
+    </div>
+  </section>
+
+  <!-- MODELS -->
+  <section class="block">
+    <div class="sec-head"><span class="sec-num">02</span><h2>Os modelos, comparados</h2></div>
+    <p class="sec-sub">Três algoritmos com o mesmo pré-processamento e balanceamento de classes, comparados por validação cruzada de 5 dobras (média). A métrica principal é o ROC-AUC, adequada a uma base desbalanceada. O recall mostra quantos clientes em risco o modelo encontra.</p>
+    <div style="overflow-x:auto">
+      <table class="mtable">
+        <thead><tr><th>Modelo</th><th>ROC-AUC</th><th>Recall (churn)</th><th>F1 (churn)</th></tr></thead>
+        <tbody id="modelBody"></tbody>
+      </table>
+    </div>
+    <p class="note" style="margin-top:16px;color:var(--ink-2)" id="modelNote"></p>
+  </section>
+
+  <!-- SIMULATOR -->
+  <section class="block">
+    <div class="sec-head"><span class="sec-num">03</span><h2>Simulador de risco</h2><span class="badge" style="margin:0">modelo real, no navegador</span></div>
+    <p class="sec-sub">Ajuste o perfil de um cliente e veja o risco de churn recalculado ao vivo. Os coeficientes vêm de uma Regressão Logística treinada só com estas 6 variáveis (ROC-AUC <span data-d="sim_auc">0,84</span> no teste).</p>
+
+    <div class="sim">
+      <div class="card controls">
+        <div class="ctrl">
+          <label>Tempo de contrato <span id="tenureVal">12 meses</span></label>
+          <input type="range" id="tenure" min="0" max="72" value="12" step="1">
+        </div>
+        <div class="ctrl">
+          <label>Cobrança mensal <span id="chargeVal">R$ 70</span></label>
+          <input type="range" id="charge" min="18" max="120" value="70" step="1">
+        </div>
+        <div class="ctrl">
+          <label>Contrato</label>
+          <select id="contract">
+            <option value="Contract_Month-to-month">Mensal</option>
+            <option value="Contract_One year">1 ano</option>
+            <option value="Contract_Two year">2 anos</option>
+          </select>
+        </div>
+        <div class="ctrl">
+          <label>Internet</label>
+          <select id="internet">
+            <option value="InternetService_Fiber optic">Fibra óptica</option>
+            <option value="InternetService_DSL">DSL</option>
+            <option value="InternetService_No">Sem internet</option>
+          </select>
+        </div>
+        <div class="ctrl">
+          <label>Pagamento</label>
+          <select id="payment">
+            <option value="PaymentMethod_Electronic check">Cheque eletrônico</option>
+            <option value="PaymentMethod_Mailed check">Cheque por correio</option>
+            <option value="PaymentMethod_Bank transfer (automatic)">Transferência automática</option>
+            <option value="PaymentMethod_Credit card (automatic)">Cartão automático</option>
+          </select>
+        </div>
+        <div class="ctrl">
+          <label>Suporte técnico</label>
+          <select id="tech">
+            <option value="TechSupport_No">Não contratado</option>
+            <option value="TechSupport_Yes">Contratado</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="gauge">
+        <svg viewBox="0 0 200 120" width="200" aria-hidden="true">
+          <path d="M20 110 A80 80 0 0 1 180 110" fill="none" stroke="var(--line-strong)" stroke-width="14" stroke-linecap="round"/>
+          <path id="gaugeArc" d="M20 110 A80 80 0 0 1 180 110" fill="none" stroke="var(--orange)" stroke-width="14" stroke-linecap="round" stroke-dasharray="251" stroke-dashoffset="251" style="transition:stroke-dashoffset .5s cubic-bezier(.2,.8,.2,1),stroke .3s"/>
+        </svg>
+        <div class="pct mono" id="riskPct">–</div>
+        <div class="lab">risco estimado de churn</div>
+        <div class="risk-pill" id="riskPill">—</div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="name">João Gabriel Cortezi</div>
+    <div style="margin-top:6px">Projeto de portfólio · Dados &amp; IA · <a href="https://github.com/jgcortezi/customer-churn-prediction" id="repoLink">github.com/jgcortezi/customer-churn-prediction</a></div>
+    <p class="disclaimer">Simulador para fins de demonstração: usa os coeficientes de uma Regressão Logística com 6 variáveis, treinada no dataset público Telco Customer Churn (IBM). Não representa clientes reais nem constitui recomendação de negócio.</p>
+  </footer>
+</main>
+
+<script>
+// <dados-gerados> (gerado por `python -m churn.train`; não edite à mão)
+const DADOS = {
+ "clientes": 7043,
+ "taxa_base": 0.2654,
+ "contrato": [
+  {
+   "n": "Mensal",
+   "v": 0.427
+  },
+  {
+   "n": "1 ano",
+   "v": 0.113
+  },
+  {
+   "n": "2 anos",
+   "v": 0.028
+  }
+ ],
+ "pagamento": [
+  {
+   "n": "Cheque eletrônico",
+   "v": 0.453
+  },
+  {
+   "n": "Cheque pelo correio",
+   "v": 0.191
+  },
+  {
+   "n": "Transferência automática",
+   "v": 0.167
+  },
+  {
+   "n": "Cartão automático",
+   "v": 0.152
+  }
+ ],
+ "tempo": [
+  {
+   "n": "0–6m",
+   "v": 0.529
+  },
+  {
+   "n": "7–12m",
+   "v": 0.359
+  },
+  {
+   "n": "13–24m",
+   "v": 0.287
+  },
+  {
+   "n": "25–48m",
+   "v": 0.204
+  },
+  {
+   "n": "49–72m",
+   "v": 0.095
+  }
+ ],
+ "razao_contrato": 15.08185483870968,
+ "razao_pagamento": 2.97087920099147,
+ "modelos": [
+  {
+   "m": "Regressão Logística",
+   "auc": 0.846,
+   "rec": 0.801,
+   "f1": 0.628,
+   "best": true,
+   "pick": true
+  },
+  {
+   "m": "Random Forest",
+   "auc": 0.845,
+   "rec": 0.762,
+   "f1": 0.632,
+   "best": false,
+   "pick": false
+  },
+  {
+   "m": "Gradient Boosting",
+   "auc": 0.841,
+   "rec": 0.769,
+   "f1": 0.631,
+   "best": false,
+   "pick": false
+  }
+ ],
+ "escolhido": "Regressão Logística",
+ "teste": {
+  "auc": 0.841501976284585,
+  "recall": 0.7834224598930482,
+  "precisao": 0.504302925989673
+ },
+ "nota_modelos": "Os três modelos ficaram a menos de 0,005 de ROC-AUC entre si, diferença menor que a variação entre as dobras. Fiquei com a <b>Regressão Logística</b>: empata com os mais complexos e cada coeficiente pode ser explicado. No conjunto de teste, que o modelo nunca viu, ela encontra <b>78%</b> dos cancelamentos.",
+ "simulador": {
+  "auc": 0.8329781187837453,
+  "intercept": -0.487329072933299,
+  "coef": {
+   "tenure": -0.6949708923252274,
+   "MonthlyCharges": 0.25527147604036593,
+   "Contract_Month-to-month": 0.6328747062784569,
+   "Contract_One year": -0.1710333798573914,
+   "Contract_Two year": -0.9218290012587297,
+   "InternetService_DSL": -0.3755815351583449,
+   "InternetService_Fiber optic": 0.39946514503516,
+   "InternetService_No": -0.4838712847144769,
+   "PaymentMethod_Bank transfer (automatic)": -0.24678885084758576,
+   "PaymentMethod_Credit card (automatic)": -0.2601171875506016,
+   "PaymentMethod_Electronic check": 0.2639158431976272,
+   "PaymentMethod_Mailed check": -0.2169974796370962,
+   "TechSupport_No": 0.21465655326240737,
+   "TechSupport_No internet service": -0.4838712847144804,
+   "TechSupport_Yes": -0.19077294338559891
+  },
+  "mean": {
+   "tenure": 32.48509052183174,
+   "MonthlyCharges": 64.92996095136671
+  },
+  "std": {
+   "tenure": 24.56656301538815,
+   "MonthlyCharges": 30.135430576006627
+  }
+ }
+};
+const CONTRACT = DADOS.contrato, PAYMENT = DADOS.pagamento, TENURE = DADOS.tempo;
+const MODELS = DADOS.modelos, MODEL = DADOS.simulador;
+// </dados-gerados>
+
+// ---------- números da página (vêm do treino) ----------
+const pct=v=>Math.round(v*100)+'%';
+const dec=(v,n)=>v.toFixed(n).replace('.',',');
+const TXT={clientes:DADOS.clientes.toLocaleString('pt-BR'),taxa_base:dec(DADOS.taxa_base*100,1)+'%',
+  auc:dec(DADOS.teste.auc,2),recall:pct(DADOS.teste.recall),razao_contrato:Math.round(DADOS.razao_contrato)+'×',
+  razao_pagamento:dec(DADOS.razao_pagamento,1)+'×',churn_6m:pct(DADOS.tempo[0].v),sim_auc:dec(DADOS.simulador.auc,2)};
+document.querySelectorAll('[data-d]').forEach(el=>{el.textContent=TXT[el.dataset.d];});
+document.getElementById('modelNote').innerHTML=DADOS.nota_modelos;
+
+// ---------- render insight bars ----------
+function bars(el,data,cls){
+  el.innerHTML=data.map((d,i)=>{
+    const kind = cls==='auto' ? (d.v===Math.max(...data.map(x=>x.v))?'hot':'') : cls;
+    const w=(d.v/Math.max(...data.map(x=>x.v))*100).toFixed(1);
+    return `<div class="row"><div class="rl"><span class="name">${d.n}</span><span class="val">${(d.v*100).toFixed(1).replace('.',',')}%</span></div>
+      <div class="track"><div class="fill ${kind}" style="width:${w}%;animation-delay:${i*.08}s"></div></div></div>`;
+  }).join('');
+}
+bars(document.getElementById('contractRows'),CONTRACT,'hot');
+bars(document.getElementById('paymentRows'),PAYMENT,'auto');
+
+// ---------- tenure area chart ----------
+(function(){
+  const W=680,H=220,pl=34,pr=14,pt=18,pb=34;
+  const iw=W-pl-pr, ih=H-pt-pb, n=TENURE.length;
+  const maxV=.6;
+  const x=i=> pl + (n===1?iw/2:i*iw/(n-1));
+  const y=v=> pt + ih - (v/maxV)*ih;
+  const pts=TENURE.map((d,i)=>[x(i),y(d.v)]);
+  const line=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
+  const area=`M${x(0)} ${pt+ih} `+pts.map(p=>'L'+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ')+` L${x(n-1)} ${pt+ih} Z`;
+  const grid=[0,.15,.3,.45,.6].map(g=>{const yy=y(g);return `<line x1="${pl}" y1="${yy}" x2="${W-pr}" y2="${yy}" stroke="var(--line)" stroke-width="1"/><text class="axis" x="${pl-8}" y="${yy+3}" text-anchor="end">${(g*100)|0}%</text>`}).join('');
+  const dots=TENURE.map((d,i)=>`<circle cx="${x(i)}" cy="${y(d.v).toFixed(1)}" r="4.5" fill="var(--surface)" stroke="var(--orange)" stroke-width="2.5"/><text class="axis" x="${x(i)}" y="${H-12}" text-anchor="middle">${d.n}</text>`).join('');
+  const lbl=TENURE.map((d,i)=>`<text class="mono" x="${x(i)}" y="${y(d.v)-12}" text-anchor="middle" font-size="11" font-weight="600" fill="var(--ink)">${(d.v*100).toFixed(0)}%</text>`).join('');
+  document.getElementById('tenureChart').innerHTML=
+    `<svg viewBox="0 0 ${W} ${H}"><defs><linearGradient id="ag" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="var(--orange)" stop-opacity=".28"/><stop offset="1" stop-color="var(--orange)" stop-opacity="0"/>
+     </linearGradient></defs>${grid}
+     <path d="${area}" fill="url(#ag)"/><path d="${line}" fill="none" stroke="var(--orange)" stroke-width="2.5" stroke-linejoin="round"/>
+     ${dots}${lbl}</svg>`;
+})();
+
+// ---------- model table ----------
+document.getElementById('modelBody').innerHTML=MODELS.map(r=>{
+  const w=(r.auc*100).toFixed(0);
+  return `<tr class="${r.best?'best':''}">
+    <td>${r.m}${r.best?'<span class="badge">melhor AUC</span>':''}${r.pick?'<span class="badge" style="color:var(--blue);background:var(--blue-soft)">no simulador</span>':''}</td>
+    <td><span class="mbar" style="width:${w*.6}px"></span><span class="mono">${r.auc.toFixed(3).replace('.',',')}</span></td>
+    <td class="mono">${(r.rec*100).toFixed(0)}%</td>
+    <td class="mono">${r.f1.toFixed(3).replace('.',',')}</td></tr>`;
+}).join('');
+
+// ---------- simulator (real logistic regression) ----------
+const $=id=>document.getElementById(id);
+function sigmoid(z){return 1/(1+Math.exp(-z));}
+function predict(){
+  const tenure=+$('tenure').value, charge=+$('charge').value;
+  const c=MODEL.coef; let z=MODEL.intercept;
+  z += c.tenure*((tenure-MODEL.mean.tenure)/MODEL.std.tenure);
+  z += c.MonthlyCharges*((charge-MODEL.mean.MonthlyCharges)/MODEL.std.MonthlyCharges);
+  const semInternet = $('internet').value==='InternetService_No';
+  $('tech').disabled = semInternet;
+  const tech = semInternet ? 'TechSupport_No internet service' : $('tech').value;
+  [ $('contract').value, $('internet').value, $('payment').value, tech ].forEach(key=>{
+    if(c[key]!==undefined) z+=c[key];
+  });
+  const p=sigmoid(z);
+
+  $('tenureVal').textContent=tenure+' meses';
+  $('chargeVal').textContent='R$ '+charge;
+  const pct=Math.round(p*100);
+  $('riskPct').textContent=pct+'%';
+  const arc=$('gaugeArc'); arc.style.strokeDashoffset=(251*(1-p)).toFixed(1);
+  let col,txt,bg,ink;
+  if(p<.33){col='var(--teal)';txt='Risco baixo';bg='var(--teal-soft)';ink='var(--teal)';}
+  else if(p<.6){col='var(--orange)';txt='Risco moderado';bg='var(--orange-soft)';ink='var(--orange)';}
+  else{col='var(--orange)';txt='Risco alto — priorizar retenção';bg='var(--orange-soft)';ink='var(--orange)';}
+  arc.style.stroke=col; $('riskPct').style.color=col;
+  const pill=$('riskPill'); pill.textContent=txt; pill.style.background=bg; pill.style.color=ink;
+}
+['tenure','charge','contract','internet','payment','tech'].forEach(id=>{
+  $(id).addEventListener('input',predict);
+});
+predict();
+
+// ---------- theme toggle ----------
+(function(){
+  const btn=$('themeBtn'), root=document.documentElement;
+  function cur(){return root.getAttribute('data-theme')|| (matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');}
+  function set(t){root.setAttribute('data-theme',t);$('themeLbl').textContent=t==='dark'?'Claro':'Escuro';$('themeIcon').textContent=t==='dark'?'☀':'☾';try{localStorage.setItem('cr-theme',t)}catch(e){}}
+  try{const s=localStorage.getItem('cr-theme');if(s)set(s);else set(cur());}catch(e){set(cur());}
+  btn.addEventListener('click',()=>set(cur()==='dark'?'light':'dark'));
+})();
+</script>
+
+</body></html>
